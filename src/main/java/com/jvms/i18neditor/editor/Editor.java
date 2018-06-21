@@ -874,14 +874,14 @@ public class Editor extends JFrame {
 		props.setProperty("resource_type", project.getResourceType().toString());
 		props.setProperty("resource_definition", project.getResourceFileDefinition());
 		props.setProperty("resource_directories", project.isUseResourceDirectories());
-		props.store(Paths.get(project.getPath().toString(), PROJECT_FILE));
+		props.store(Paths.get(SETTINGS_DIR, PROJECT_FILE));
 	}
 	
 	private void restoreProjectState(EditorProject project) {
 		ExtendedProperties props = new ExtendedProperties();
-		Path path = Paths.get(project.getPath().toString(), PROJECT_FILE);
+		Path path = Paths.get(SETTINGS_DIR, PROJECT_FILE);
 		if (Files.exists(path)) {
-			props.load(Paths.get(project.getPath().toString(), PROJECT_FILE));
+			props.load(path);
 			project.setMinifyResources(props.getBooleanProperty("minify_resources", settings.isMinifyResources()));
 			project.setFlattenJSON(props.getBooleanProperty("flatten_json", settings.isFlattenJSON()));
 			project.setResourceType(props.getEnumProperty("resource_type", ResourceType.class));
