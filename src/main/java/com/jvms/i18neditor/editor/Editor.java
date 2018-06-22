@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,6 +53,7 @@ import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreePath;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +114,9 @@ public class Editor extends JFrame {
 	private TranslationKeyField translationField;
 	private JPanel resourcesPanel;
 	private List<ResourceField> resourceFields = Lists.newArrayList();
+
+	/** Used to sort the translation keys on saving */
+	private Set<String> keys = Sets.newLinkedHashSet();
 	
 	public void createProject(Path dir, ResourceType type) {
 		try {
@@ -199,6 +204,9 @@ public class Editor extends JFrame {
 				project.getResources().forEach(r -> keys.putAll(r.getTranslations()));
 			}
 			translationTree.setModel(new TranslationTreeModel(Lists.newArrayList(keys.keySet())));
+
+			this.keys.clear();
+			this.keys.addAll(keys.keySet());
 			
 			updateTreeNodeStatuses();
 			updateHistory();
@@ -214,6 +222,7 @@ public class Editor extends JFrame {
 		boolean error = false;
 		if (project != null) {
 			for (Resource resource : project.getResources()) {
+				resource.sortKeys(this.keys);
 				try {
 					Resources.write(resource, !project.isMinifyResources(), project.isFlattenJSON());
 				} catch (IOException e) {
@@ -276,7 +285,8 @@ public class Editor extends JFrame {
 			if (project != null) {
 				project.getResources().forEach(resource -> resource.storeTranslation(key, ""));				
 			}
-			translationTree.addNodeByKey(key);			
+			translationTree.addNodeByKey(key);
+			this.keys.add(key);
 		}
 		requestFocusInFirstResourceField();
 	}
@@ -286,6 +296,7 @@ public class Editor extends JFrame {
 			project.getResources().forEach(resource -> resource.removeTranslation(key));
 		}
 		translationTree.removeNodeByKey(key);
+		keys.remove(key);
 		requestFocusInFirstResourceField();
 	}
 	
@@ -294,6 +305,17 @@ public class Editor extends JFrame {
 			project.getResources().forEach(resource -> resource.renameTranslation(key, newKey));
 		}
 		translationTree.renameNodeByKey(key, newKey);
+
+		Set<String> newKeys = new LinkedHashSet<>();
+		keys.forEach(k -> {
+			if (k.equals(key)) {
+				newKeys.add(newKey);
+			} else {
+				newKeys.add(k);
+			}
+		});
+		keys = newKeys;
+
 		requestFocusInFirstResourceField();
 	}
 	
@@ -302,6 +324,7 @@ public class Editor extends JFrame {
 			project.getResources().forEach(resource -> resource.duplicateTranslation(key, newKey));
 		}
 		translationTree.duplicateNodeByKey(key, newKey);
+		keys.add(newKey);
 		requestFocusInFirstResourceField();
 	}
 	

@@ -1,6 +1,7 @@
 package com.jvms.i18neditor;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -282,5 +283,15 @@ public class Resource {
 	
 	private void checkKey(String key) {
 		Preconditions.checkArgument(ResourceKeys.isValid(key), "Key is not valid.");
+	}
+
+	public void sortKeys(Collection<String> keyOrder) {
+		Map<String, String> sortedTranslations = Maps.newLinkedHashMap();
+		keyOrder.forEach( key -> {
+			if (this.translations.containsKey(key)) {
+					sortedTranslations.put(key, this.translations.get(key));
+			}
+		});
+		this.translations = sortedTranslations;
 	}
 }
