@@ -99,12 +99,6 @@ public class TranslationTreeModel extends DefaultTreeModel {
 	}
 	
 	private int getNewChildIndex(TranslationTreeNode newChild, TranslationTreeNode parent) {
-		int result = 0;
-		for (TranslationTreeNode n : parent.getChildren()) {
-			if (n.getName().compareTo(newChild.getName()) < 0) {
-				result++;
-			}
-		}
-		return result;
+		return parent.getChildCount();
 	}
 }
