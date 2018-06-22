@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -113,7 +112,7 @@ public final class Resources {
 	public static void load(Resource resource) throws IOException {
 		ResourceType type = resource.getType();
 		Path path = resource.getPath();
-		SortedMap<String,String> translations;
+		Map<String,String> translations;
 		if (type == ResourceType.Properties) {
 			ExtendedProperties content = new ExtendedProperties();
 			content.load(path);
@@ -197,8 +196,8 @@ public final class Resources {
 		return fileDefinition.replaceAll(FILENAME_LOCALE_REGEX, locale.isPresent() ? ("$1" + locale.get().toString() + "$2") : "");
 	}
 	
-	private static SortedMap<String,String> fromProperties(ExtendedProperties properties) {
-		SortedMap<String,String> result = Maps.newTreeMap();
+	private static Map<String,String> fromProperties(ExtendedProperties properties) {
+		Map<String,String> result = Maps.newLinkedHashMap();
 		properties.forEach((key, value) -> {
 			result.put((String)key, StringEscapeUtils.unescapeJava((String)value));
 		});
@@ -211,8 +210,8 @@ public final class Resources {
 		return result;
 	}
 	
-	private static SortedMap<String,String> fromJson(String json) {
-		SortedMap<String,String> result = Maps.newTreeMap();
+	private static Map<String,String> fromJson(String json) {
+		Map<String,String> result = Maps.newLinkedHashMap();
 		JsonElement elem = new JsonParser().parse(json);
 		fromJson(null, elem, result);
 		return result;
@@ -240,9 +239,24 @@ public final class Resources {
 		if (prettify) {
 			builder.setPrettyPrinting();
 		}
-		return builder.create().toJson(elem);
+		return indentWithTab(builder.create().toJson(elem));
 	}
-	
+
+	/**
+	 * Replaces every two spaces to one tab character.
+	 */
+	private static String indentWithTab(String jsonStr) {
+		Pattern pattern = Pattern.compile("(?<=\n) +");
+		Matcher m = pattern.matcher(jsonStr);
+		StringBuffer sb = new StringBuffer();
+		while (m.find()) {
+			String text = m.group();
+			m.appendReplacement(sb, new String(new char[text.length() / 2]).replace('\0', '\t'));
+		}
+		m.appendTail(sb);
+		return sb.toString();
+	}
+
 	private static JsonElement toFlatJson(Map<String, String> translations, List<String> keys) {
 		JsonObject object = new JsonObject();
 		if (keys.size() > 0) {

@@ -173,7 +173,7 @@ public class Editor extends JFrame {
 			Optional<ResourceType> type = Optional.ofNullable(project.getResourceType());
 			List<Resource> resourceList = Resources.get(dir, 
 					project.getResourceFileDefinition(), project.isUseResourceDirectories(), type);
-			Map<String,String> keys = Maps.newTreeMap();
+			Map<String,String> keys = Maps.newLinkedHashMap();
 			
 			if (resourceList.isEmpty()) {
 				project = null;

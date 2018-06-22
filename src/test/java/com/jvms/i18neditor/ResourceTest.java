@@ -1,15 +1,14 @@
 package com.jvms.i18neditor;
 
-import java.util.Locale;
-import java.util.SortedMap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.util.Locale;
+import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.jvms.i18neditor.Resource;
-
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
@@ -20,7 +19,7 @@ public class ResourceTest {
 	
 	@Before
 	public void setup() throws Exception {
-		SortedMap<String,String> translations = Maps.newTreeMap();
+		Map<String,String> translations = Maps.newLinkedHashMap();
 		translations.put("a.a", "aa");
 		translations.put("a.b", "ab");
 		resource = new Resource(ResourceType.JSON, null, new Locale("en"));
@@ -29,7 +28,7 @@ public class ResourceTest {
 	
 	@Test
 	public void addTranslationTest() {
-		SortedMap<String,String> translations;
+		Map<String,String> translations;
 		
 		resource.storeTranslation("a.a", "b");
 		
@@ -63,7 +62,7 @@ public class ResourceTest {
 	
 	@Test
 	public void removeTranslationTest() {
-		SortedMap<String,String> translations;
+		Map<String,String> translations;
 		
 		resource.storeTranslation("b", "b");
 		resource.removeTranslation("a");
@@ -77,7 +76,7 @@ public class ResourceTest {
 	
 	@Test
 	public void renameTranslationToUniqueKeyTest() {
-		SortedMap<String,String> translations;
+		Map<String,String> translations;
 		
 		resource.storeTranslation("b.a", "ba");
 		resource.storeTranslation("b.b", "bb");
@@ -107,7 +106,7 @@ public class ResourceTest {
 	
 	@Test
 	public void renameTranslationToExistingKeyTest() {
-		SortedMap<String,String> translations;
+		Map<String,String> translations;
 		
 		resource.storeTranslation("a.c", "ac");
 		resource.storeTranslation("b.a", "ba");
@@ -145,7 +144,7 @@ public class ResourceTest {
 	
 	@Test
 	public void duplicateTranslationToUniqueKeyTest() {
-		SortedMap<String,String> translations;
+		Map<String,String> translations;
 		
 		resource.storeTranslation("b.a", "ba");
 		resource.storeTranslation("b.b", "bb");
@@ -175,7 +174,7 @@ public class ResourceTest {
 	
 	@Test
 	public void duplicateTranslationToExistingKeyTest() {
-		SortedMap<String,String> translations;
+		Map<String,String> translations;
 		
 		resource.storeTranslation("a.c", "ac");
 		resource.storeTranslation("b.a", "ba");

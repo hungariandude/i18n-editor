@@ -4,11 +4,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.SortedMap;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jvms.i18neditor.util.ResourceKeys;
@@ -33,7 +31,7 @@ public class Resource {
 	private final Locale locale;
 	private final ResourceType type;
 	private final List<ResourceListener> listeners = Lists.newLinkedList();
-	private SortedMap<String,String> translations = Maps.newTreeMap();
+	private Map<String,String> translations = Maps.newLinkedHashMap();
 	private String checksum;
 
 	/**
@@ -92,8 +90,8 @@ public class Resource {
 	 * 
 	 * @return 	the translations of the resource.
 	 */
-	public SortedMap<String,String> getTranslations() {
-		return ImmutableSortedMap.copyOf(translations);
+	public Map<String,String> getTranslations() {
+		return this.translations;
 	}
 	
 	/**
@@ -101,7 +99,7 @@ public class Resource {
 	 * 
 	 * @param translations	the translations
 	 */
-	public void setTranslations(SortedMap<String,String> translations) {
+	public void setTranslations(Map<String,String> translations) {
 		this.translations = translations;
 	}
 	
@@ -245,7 +243,7 @@ public class Resource {
 	}
 	
 	private void duplicateTranslation(String key, String newKey, boolean keepOld) {
-		Map<String,String> newTranslations = Maps.newTreeMap();
+		Map<String,String> newTranslations = Maps.newLinkedHashMap();
 		translations.keySet().forEach(k -> {
 			if (ResourceKeys.isChildKeyOf(k, key)) {
 				String nk = ResourceKeys.create(newKey, ResourceKeys.childKey(k, key));
