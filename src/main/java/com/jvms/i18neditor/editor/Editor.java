@@ -304,17 +304,23 @@ public class Editor extends JFrame {
 		if (project != null) {
 			project.getResources().forEach(resource -> resource.renameTranslation(key, newKey));
 		}
-		translationTree.renameNodeByKey(key, newKey);
+		boolean wasSimple = translationTree.renameNodeByKey(key, newKey);
 
-		Set<String> newKeys = new LinkedHashSet<>();
-		keys.forEach(k -> {
-			if (k.equals(key)) {
-				newKeys.add(newKey);
-			} else {
-				newKeys.add(k);
-			}
-		});
-		keys = newKeys;
+		if (wasSimple) {
+			Set<String> newKeys = new LinkedHashSet<>();
+			keys.forEach(k -> {
+				if (k.equals(key)) {
+					newKeys.add(newKey);
+				}
+				else {
+					newKeys.add(k);
+				}
+			});
+			keys = newKeys;
+		} else {
+			keys.remove(key);
+			keys.add(newKey);
+		}
 
 		requestFocusInFirstResourceField();
 	}

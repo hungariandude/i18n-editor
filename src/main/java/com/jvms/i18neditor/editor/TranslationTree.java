@@ -1,19 +1,12 @@
 package com.jvms.i18neditor.editor;
 
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
-
-import javax.swing.InputMap;
-import javax.swing.JTree;
-import javax.swing.KeyStroke;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.ExpandVetoException;
@@ -120,9 +113,29 @@ public class TranslationTree extends JTree {
 		}
 		return expandedNodes;
 	}
-	
-	public void renameNodeByKey(String key, String newKey) {
-		duplicateNodeByKey(key, newKey, false);
+
+	/**
+	 * @return true if renaming was a simple Node name change; false if new Node was created
+	 */
+	public boolean renameNodeByKey(String key, String newKey) {
+		if (!key.contains(".") && !newKey.contains(".")
+				|| key.contains(".") && newKey.contains(".")
+			&& key.substring(0, key.lastIndexOf(".")).equals(
+					newKey.substring(0, newKey.lastIndexOf(".")))) {
+			// only the last part of the key is modified so no need to copy the node,
+			// simple renaming is enough
+
+			TranslationTreeModel model = (TranslationTreeModel) getModel();
+			TranslationTreeNode node = model.getNodeByKey(key);
+			node.setName(newKey.substring(newKey.lastIndexOf(".") + 1));
+			model.nodeChanged(node);
+
+			return true;
+		} else {
+			duplicateNodeByKey(key, newKey, false);
+
+			return false;
+		}
 	}
 	
 	public void duplicateNodeByKey(String key, String newKey) {
